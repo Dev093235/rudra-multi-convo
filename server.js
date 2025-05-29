@@ -1,21 +1,26 @@
 const express = require('express');
 const path = require('path');
 const app = express();
-const port = process.env.PORT || 3000; // Render ya local environment se PORT lega
+const port = process.env.PORT || 3000;
 
-// Serve static files from the current directory (jahan index.html, style.css hain)
+// Serve static files from the root of the project
+// Ye line batati hai ki Render aapki index.html, style.css aur image files ko kahan dhunde
 app.use(express.static(path.join(__dirname)));
 
-// Route for the homepage
+// Root route to serve index.html
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Basic route to test the backend (ismein hum baad mein FB logic daalenge)
-app.post('/api/facebook-action', (req, res) => {
-    // Abhi ke liye, bas ek simple response bhej rahe hain
-    console.log('Received a request for Facebook action!');
-    res.json({ message: 'Facebook action received! (Not yet implemented)' });
+// For POST requests to /api/facebook-action
+app.post('/api/facebook-action', express.json(), (req, res) => {
+    // Ye line body se JSON data ko parse karne ke liye hai
+    // Abhi ke liye, hum sirf data ko log kar rahe hain
+    console.log('Received data for Facebook action:', req.body);
+
+    // Yahan Facebook API ka logic aayega
+    // Temporary response
+    res.json({ message: 'Facebook action received!', data: req.body });
 });
 
 app.listen(port, () => {
