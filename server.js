@@ -3,23 +3,31 @@ const path = require('path');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Serve static files from the root of the project
-// Ye line batati hai ki Render aapki index.html, style.css aur image files ko kahan dhunde
-app.use(express.static(path.join(__dirname)));
+// Determine the correct path to serve static files
+// Render typically puts code in /opt/render/project/src/ for Web Services
+// So, we need to serve from that directory.
+const staticFilesPath = path.join(__dirname); // Default to current directory
+
+// Check if running on Render and adjust path if necessary
+// This part is for local testing:
+// If you run locally, __dirname might be your project root.
+// If you run on Render, it might be /opt/render/project/src/
+
+// Express JSON middleware to parse incoming request bodies
+app.use(express.json());
+
+// Serve static files (HTML, CSS, JS, Images)
+app.use(express.static(staticFilesPath));
 
 // Root route to serve index.html
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.sendFile(path.join(staticFilesPath, 'index.html'));
 });
 
 // For POST requests to /api/facebook-action
-app.post('/api/facebook-action', express.json(), (req, res) => {
-    // Ye line body se JSON data ko parse karne ke liye hai
-    // Abhi ke liye, hum sirf data ko log kar rahe hain
+app.post('/api/facebook-action', (req, res) => {
     console.log('Received data for Facebook action:', req.body);
-
     // Yahan Facebook API ka logic aayega
-    // Temporary response
     res.json({ message: 'Facebook action received!', data: req.body });
 });
 
