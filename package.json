@@ -1,0 +1,15 @@
+{
+  "name": "rudra-multi-convo",
+  "version": "1.0.0",
+  "description": "A Node.js Express backend for Rudra Multi Convo Facebook system",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "Rudra",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
