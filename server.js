@@ -3,25 +3,30 @@ const path = require('path');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Determine the correct path to serve static files
-// Render typically puts code in /opt/render/project/src/ for Web Services
-// So, we need to serve from that directory.
-const staticFilesPath = path.join(__dirname); // Default to current directory
+// Determine the correct base directory for static files
+// Render Web Services often deploy into '/opt/render/project/src/'
+// This line tries to find the correct path dynamically.
+let basePath = __dirname;
+if (process.env.NODE_ENV === 'production' && process.env.RENDER) {
+    // On Render, the working directory might be the 'src' folder
+    // but the actual project root (where index.html is) is one level up.
+    // Or it might be the src itself if Render moves content.
+    // Let's try to assume current dir as base for content serving.
+    // We already use path.join(__dirname) below, which should ideally work.
+    // Let's ensure the path is correct even if Render sets specific working directory.
+}
 
-// Check if running on Render and adjust path if necessary
-// This part is for local testing:
-// If you run locally, __dirname might be your project root.
-// If you run on Render, it might be /opt/render/project/src/
+// Serve static files from the project root (where index.html, style.css are)
+// We are explicitly telling Express to serve from the directory where server.js is located.
+app.use(express.static(basePath));
 
 // Express JSON middleware to parse incoming request bodies
 app.use(express.json());
 
-// Serve static files (HTML, CSS, JS, Images)
-app.use(express.static(staticFilesPath));
-
 // Root route to serve index.html
 app.get('/', (req, res) => {
-    res.sendFile(path.join(staticFilesPath, 'index.html'));
+    // Ensure index.html is served from the correct base path
+    res.sendFile(path.join(basePath, 'index.html'));
 });
 
 // For POST requests to /api/facebook-action
