@@ -1,28 +1,50 @@
 const express = require('express');
 const path = require('path');
+const multer = require('multer'); // Multer ko import karein
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Define the base directory for serving static files
-// This assumes all your static files (index.html, style.css, image)
-// are in the same directory as server.js in the deployed environment.
-// On Render, if your GitHub repo root is deployed, then all files are in /opt/render/project/
-// and __dirname will correctly point to /opt/render/project/
-const staticFilesDirectory = path.join(__dirname); 
-
-app.use(express.json());
+// Multer storage setup (for file uploads)
+// Abhi ke liye, hum file ko memory mein store karenge
+// ya aap use 'uploads' folder mein save kar sakte hain.
+// MemoryStorage files ko server ki memory mein rakhta hai, jo testing ke liye theek hai.
+// Production mein aap diskStorage ka use kar sakte hain.
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 // Serve static files (HTML, CSS, JS, Images)
-app.use(express.static(staticFilesDirectory));
+app.use(express.static(path.join(__dirname))); 
+
+// `express.json()` middleware for JSON data (if any other endpoints need it)
+// Note: This is NOT for multipart/form-data. Multer will handle that.
+app.use(express.json()); 
 
 // Root route to serve index.html
 app.get('/', (req, res) => {
-    res.sendFile(path.join(staticFilesDirectory, 'index.html'));
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // For POST requests to /api/facebook-action
-app.post('/api/facebook-action', (req, res) => {
-    console.log('Received data for Facebook action:', req.body);
+// 'upload.single('npFile')' middleware ko yahan use karein
+// 'npFile' aapke form field ka 'name' attribute hai (input type="file" id="npFile" ka name)
+app.post('/api/facebook-action', upload.single('npFile'), (req, res) => {
+    console.log('Received form fields:', req.body); // Text fields (password, token, etc.)
+    if (req.file) {
+        console.log('Received file:', req.file); // File details (if file was uploaded)
+        console.log('File content (first 100 chars):', req.file.buffer.toString('utf8').substring(0, 100));
+    } else {
+        console.log('No file was uploaded.');
+    }
+
+    // Yahan Facebook API ka logic aayega
+    // Aap req.body se apne form ke text fields ko access kar sakte hain:
+    const password = req.body.password;
+    const token = req.body.token;
+    // etc.
+
+    // Agar file upload hui hai, to uska content req.file.buffer mein hoga.
+    // const npFileContent = req.file ? req.file.buffer.toString('utf8') : null;
+
     res.json({ message: 'Facebook action received!', data: req.body });
 });
 
