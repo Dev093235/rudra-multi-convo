@@ -1,98 +1,53 @@
+<!-- public/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RUDRA MULTI CONVO</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>RUDRA MULTI CONVO</title>
+  <style>
+    body {
+      background-image: url('https://i.imgur.com/pKW7nrR.jpg');
+      background-size: cover;
+      font-family: sans-serif;
+      color: white;
+      text-align: center;
+      padding: 40px;
+    }
+    h1 {
+      font-size: 36px;
+      margin-bottom: 20px;
+    }
+    input, select {
+      display: block;
+      margin: 12px auto;
+      padding: 10px;
+      width: 80%;
+      max-width: 400px;
+      border-radius: 10px;
+      border: none;
+      font-size: 16px;
+    }
+    input[type="file"] {
+      background: #fff;
+      color: #000;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>RUDRA MULTI CONVO</h1>
-        <form id="multiConvoForm">
-            <input type="password" id="password" placeholder="Enter Password" required>
-
-            <select id="tokenOption">
-                <option value="">Select Token Option</option>
-                <option value="single">Single Token</option>
-                <option value="multi">Multi Token</option>
-            </select>
-
-            <input type="text" id="token" placeholder="Enter Single Token" required>
-            <input type="text" id="inboxUid" placeholder="Enter Inbox/convo uid" required>
-            <input type="text" id="haterName" placeholder="Enter Your Hater Name" required>
-            <input type="number" id="timeSeconds" placeholder="Enter Time (seconds)" required>
-
-            <label for="npFile" class="file-label">Choose Your Np File</label>
-            <input type="file" id="npFile" accept=".txt" hidden>
-            <span id="fileName">No file chosen</span>
-
-            <button type="submit">Start Rudra</button>
-        </form>
-        <div id="responseMessage"></div>
-    </div>
-
-    <script>
-        // Display chosen file name
-        document.getElementById('npFile').addEventListener('change', function() {
-            const fileNameSpan = document.getElementById('fileName');
-            if (this.files.length > 0) {
-                fileNameSpan.textContent = this.files[0].name;
-            } else {
-                fileNameSpan.textContent = 'No file chosen';
-            }
-        });
-
-        // Handle form submission
-        document.getElementById('multiConvoForm').addEventListener('submit', async function(event) {
-            event.preventDefault(); // Prevent default form submission
-
-            const password = document.getElementById('password').value;
-            const tokenOption = document.getElementById('tokenOption').value;
-            const token = document.getElementById('token').value;
-            const inboxUid = document.getElementById('inboxUid').value;
-            const haterName = document.getElementById('haterName').value;
-            const timeSeconds = document.getElementById('timeSeconds').value;
-            const npFile = document.getElementById('npFile').files[0]; // Get the file object
-
-            const responseMessageDiv = document.getElementById('responseMessage');
-            responseMessageDiv.textContent = 'Processing...';
-            responseMessageDiv.style.color = 'blue';
-
-            // Create FormData to send file and other data
-            const formData = new FormData();
-            formData.append('password', password);
-            formData.append('tokenOption', tokenOption);
-            formData.append('token', token);
-            formData.append('inboxUid', inboxUid);
-            formData.append('haterName', haterName);
-            formData.append('timeSeconds', timeSeconds);
-            if (npFile) {
-                formData.append('npFile', npFile); // Append the file
-            }
-
-            try {
-                // Send data to your Node.js backend
-                const response = await fetch('/api/facebook-action', {
-                    method: 'POST',
-                    body: formData // Use FormData for file uploads
-                });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    responseMessageDiv.textContent = 'Success: ' + result.message;
-                    responseMessageDiv.style.color = 'green';
-                } else {
-                    responseMessageDiv.textContent = 'Error: ' + (result.message || 'Something went wrong');
-                    responseMessageDiv.style.color = 'red';
-                }
-            } catch (error) {
-                console.error('Submission error:', error);
-                responseMessageDiv.textContent = 'Network Error: Could not connect to server.';
-                responseMessageDiv.style.color = 'red';
-            }
-        });
-    </script>
+  <h1>RUDRA MULTI CONVO</h1>
+  <form action="/start" method="POST" enctype="multipart/form-data">
+    <input type="password" name="password" placeholder="Enter Password" required>
+    <select name="tokenOption">
+      <option value="single">Single Token</option>
+      <option value="multi">Multi Token</option>
+    </select>
+    <input type="text" name="token" placeholder="Enter Single Token">
+    <input type="text" name="uid" placeholder="Enter Inbox/convo UID">
+    <input type="text" name="name" placeholder="Enter Your Hater Name">
+    <input type="number" name="time" placeholder="Enter Time (in seconds)">
+    <label style="display: block; margin-top: 10px;">Choose Your NP File</label>
+    <input type="file" name="npfile">
+    <input type="submit" value="Start" style="background:#ff5722; color:white; font-weight:bold;">
+  </form>
 </body>
 </html>
